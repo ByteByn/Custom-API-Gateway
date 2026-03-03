@@ -68,7 +68,6 @@ Implements:
 This mimics how popular backend frameworks chain middleware internally.
 
 ---
-
 ## 2️⃣ Token Bucket Rate Limiter (`middleware/rateLimiter.ts`)
 
 ### Configuration
@@ -77,37 +76,37 @@ This mimics how popular backend frameworks chain middleware internally.
 const MAX_TOKENS = 10;
 const REFILL_RATE = 2; // tokens per second
 ```
-#### How It Works
+### How It Works
 * Each IP gets its own bucket.
 * Bucket starts with MAX_TOKENS.
 * Tokens refill over time.
 * Each request consumes 1 token.
 * If no tokens remain → HTTP 429 returned.
 
-#### Bucket Model
+### Bucket Model
 ```ts
 interface Bucket {
   tokens: number;
   lastRefill: number;
 }
 ```
-#### Storage Strategy
+### Storage Strategy
 ```ts
 const buckets: Record<string, Bucket> = {};
 ```
 
-#### In-Memory
+### In-memory
 * Keyed by client IP
 * Fast lookup
 * Lightweight
-
+---
 ## 3️⃣ Logger Middleware (middleware/logger.ts)
 
-#### Logs request lifecycle information:
+### Logs request lifecycle information:
 ```
 GET / | 200 | 3ms
 ```
-#### Captures:
+### Captures:
 * HTTP method
 * URL path
 * Status code
@@ -115,7 +114,7 @@ GET / | 200 | 3ms
 
 Uses res.on("finish") for accurate timing.
 
-#### 🚀 Running the Module
+### 🚀 Running the Module
 
 From inside `rate-limiter/`:
 ```
@@ -124,25 +123,31 @@ npm run dev
 ```
 Server runs at:
 `http://localhost:3000`
-
-#### 🧪 Testing Rate Limiting
+---
+### 🧪 Testing Rate Limiting
 
 Basic Request
+
 `curl http://localhost:3000`
 
 Burst Test
 ```
 for i in {1..20}; do curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000; done
 ```
-#### Expected behavior:
+---
+### Expected behavior:
 
 Initial responses → 200
 
 After token exhaustion → 429
 
-#### ⚠ Limitations
+---
+### ⚠ Limitations
 * In-memory storage (resets on restart)
 * Not horizontally scalable
 * No bucket cleanup for inactive IPs
 * Not reverse-proxy aware
 * No distributed coordination
+
+---
+**Resource:** https://bytebytego.com/courses/system-design-interview/design-a-rate-limiter
